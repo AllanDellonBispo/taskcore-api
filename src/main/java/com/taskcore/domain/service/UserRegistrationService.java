@@ -5,6 +5,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.taskcore.domain.exception.NoUsersFoundException;
+import com.taskcore.domain.exception.UserAlreadyExistsException;
 import com.taskcore.domain.model.User;
 import com.taskcore.domain.repository.UserRepository;
 
@@ -26,6 +27,43 @@ public class UserRegistrationService {
 			
 		} catch (DataAccessException e) {
 			throw new RuntimeException("Erro ao acessar o banco de dados.", e);
+		}
+	}
+	
+	public User save(User user) {
+
+		if(userRepository.findByEmail(user.getEmail()).isPresent()) {
+			throw new UserAlreadyExistsException("Já existe um usuário com este email");
+		}
+				
+			return userRepository.save(user);
+	}
+	
+	
+	public User updateUser(Long id, User userUpdate) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new NoUsersFoundException("Usuário não encontrado."));
+		
+		user.setName(userUpdate.getName());
+		user.setEmail(userUpdate.getEmail());
+		user.setPassword(userUpdate.getPassword());
+		
+		try {
+			return userRepository.save(user);			
+		} catch (Exception e) {
+			throw new RuntimeException("Erro ao atualizar usuário.");
+		}
+		
+	}
+	
+	public void deleteUser(Long id) {
+		User user = userRepository.findById(id)
+				.orElseThrow(() -> new NoUsersFoundException("Id de usuário inválido"));
+		
+		try {
+			userRepository.deleteById(user.getId());
+		} catch (Exception e) {
+			throw new RuntimeException("Erro ao deletar usuário.");
 		}
 	}
 	

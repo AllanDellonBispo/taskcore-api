@@ -9,7 +9,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
+@Data
 @Entity
 public class User {
 
@@ -17,12 +22,17 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@Column
+	@NotBlank(message = "O nome é obrigatório")
+	@Column(unique = true)
 	private String name;
 	
-	@Column
+    @Email(message = "Email inválido")
+    @NotBlank(message = "O email é obrigatório")
+	@Column(unique = true)
 	private String email;
 	
+    @NotBlank(message = "A senha é obrigatória")
+    @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
 	@Column
 	private String password;
 	
