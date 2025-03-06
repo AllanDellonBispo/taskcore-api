@@ -9,6 +9,8 @@ import com.taskcore.domain.exception.UserAlreadyExistsException;
 import com.taskcore.domain.model.User;
 import com.taskcore.domain.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class UserRegistrationService {
 
@@ -30,6 +32,11 @@ public class UserRegistrationService {
 		}
 	}
 	
+	public User getUser(Long id){
+		return userRepository.findById(id)
+				.orElseThrow(() -> new NoUsersFoundException("Nenhum usuário encontrado com esse id"));
+	}
+	
 	public User save(User user) {
 
 		if(userRepository.findByEmail(user.getEmail()).isPresent()) {
@@ -39,7 +46,7 @@ public class UserRegistrationService {
 			return userRepository.save(user);
 	}
 	
-	
+	@Transactional
 	public User updateUser(Long id, User userUpdate) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new NoUsersFoundException("Usuário não encontrado."));
@@ -56,6 +63,7 @@ public class UserRegistrationService {
 		
 	}
 	
+	@Transactional
 	public void deleteUser(Long id) {
 		User user = userRepository.findById(id)
 				.orElseThrow(() -> new NoUsersFoundException("Id de usuário inválido"));

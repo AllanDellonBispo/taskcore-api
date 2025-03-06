@@ -19,7 +19,6 @@ import com.taskcore.domain.model.User;
 import com.taskcore.domain.service.UserRegistrationService;
 
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 @RestController
@@ -34,13 +33,22 @@ public class UserController {
 	public ResponseEntity<Iterable<User>> getAllUsers(){
 		try {
 			Iterable<User> users = userRegistartionService.getAllUsers();
-			
 			return ResponseEntity.ok(users);
-			
-		} catch (NoUsersFoundException  e) {
+		} catch (NoUsersFoundException e) {
 			return ResponseEntity.noContent().build();
 		}catch (RuntimeException e) {
 			return ResponseEntity.internalServerError().build();
+		}
+	}
+	
+	@GetMapping("/{id}")
+	public ResponseEntity<?> getUserForId(@PathVariable Long id){
+		try {
+			User user = userRegistartionService.getUser(id);
+			
+			return ResponseEntity.status(HttpStatus.OK).body(user);
+		} catch (NoUsersFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 	
@@ -59,7 +67,6 @@ public class UserController {
 	}
 	
 	@PutMapping("/{id}")
-	@Transactional
 	public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody User user){
 		try {
 			User userUpdate = userRegistartionService.updateUser(id, user);
@@ -76,6 +83,8 @@ public class UserController {
 		try {
 			userRegistartionService.deleteUser(id);
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+		} catch (NoUsersFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
 		}

@@ -1,53 +1,54 @@
 package com.taskcore.domain.model;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 @Entity
-public class Task {
+public class Project {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@NotBlank(message = "O título é obrigatório")
+	@NotNull(message = "O nome é obrigatório")
 	@Column
-	private String title;
+	private String name;
 	
+	@NotNull(message = "A descrição é obrigatória")
 	@Column
 	private String description;
 	
 	@Column
-	private boolean finished;
-	
-	@NotNull(message = "A prioridade é obrigatória")
-	@Enumerated(EnumType.STRING)
-	@Column
 	private Priority priority;
 	
-	@NotNull(message = "A data de finalização é obrigatória")
+	
+	@NotNull(message = "A data de conclusão")
 	@Column
 	private LocalDate completionForecast;
 	
-	
 	@ManyToOne
-	@JoinColumn(name = "project_id", nullable = false)
+	@JoinColumn(name = "user_id", nullable = false)
 	@JsonBackReference
-	private Project project;
+	private User user;
+	
+	@OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+	private List<Task> tasks;
 	
 }
